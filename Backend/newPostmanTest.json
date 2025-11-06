@@ -1,0 +1,636 @@
+{
+  "info": {
+    "name": "🚀 Plateforme Livraison - Test Complet",
+    "description": "Collection complète avec tous les endpoints - Workflow: User → Paiement → Agent → Colis → Décharge",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url_auth",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "base_url_courier",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "base_url_decharge",
+      "value": "http://localhost:8002",
+      "type": "string"
+    },
+    {
+      "key": "base_url_payment",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "user_email",
+      "value": "ilboudojeanbaptiste41@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "agent_email",
+      "value": "bobcompteatoutfaire@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "admin_email",
+      "value": "ilboudojeanbaptistepro@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "user_password",
+      "value": "Password123!",
+      "type": "string"
+    },
+    {
+      "key": "agent_password",
+      "value": "AgentPass123!",
+      "type": "string",
+      "description": "Généré automatiquement lors de la création"
+    },
+    {
+      "key": "admin_password",
+      "value": "AdminPass123!",
+      "type": "string"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agent_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agent_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "colis_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "decharge_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "verification_code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "stripe_price_id",
+      "value": "price_1SN1wgRv7fgRikcb1hMwmMcQ",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔧 1. VÉRIFICATION SERVICES",
+      "item": [
+        {
+          "name": "✅ Health Check Auth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_auth}}/health"
+          }
+        },
+        {
+          "name": "✅ Health Check Courier",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_courier}}/health"
+          }
+        },
+        {
+          "name": "✅ Health Check Decharge",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_decharge}}/health"
+          }
+        },
+        {
+          "name": "✅ Health Check Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_payment}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 2. AUTH - INSCRIPTION USER",
+      "item": [
+        {
+          "name": "📝 Inscription User (Jean Baptiste)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"name\": \"Jean Baptiste Ilboudo\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signup",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('user_id', response.data.userId);",
+                    "  if (response.data.debug_verification_code) {",
+                    "    pm.collectionVariables.set('verification_code', response.data.debug_verification_code);",
+                    "    console.log('✅ Code vérification:', response.data.debug_verification_code);",
+                    "  }",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "✔️ Vérifier Email (Récupérer Code Console)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"providedCode\": \"{{verification_code}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/verify-verification-code",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success && response.token) {",
+                    "  pm.collectionVariables.set('user_token', response.token);",
+                    "  console.log('✅ User Email vérifié - Token reçu');",
+                    "} else {",
+                    "  console.log('❌ Erreur - Vérifiez le code de vérification');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "🔑 Connexion User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signin",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('user_token', response.data.token);",
+                    "  console.log('✅ Connexion réussie - Token:', response.data.token.substring(0, 20) + '...');",
+                    "} else {",
+                    "  console.log('❌ Erreur:', response.message);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "👤 Voir Mon Profil",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_auth}}/api/auth/getme"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 3. PAYMENT - ABONNEMENT",
+      "item": [
+        {
+          "name": "🛒 Créer Session Paiement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priceId\": \"{{stripe_price_id}}\"\n}"
+            },
+            "url": "{{base_url_payment}}/api/subscriptions/checkout-session"
+          }
+        },
+        {
+          "name": "⚠️ PAYER SUR STRIPE",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "console.log('⚠️ ÉTAPE MANUELLE:');",
+                  "console.log('1. Allez sur l\\'URL Stripe reçue');",
+                  "console.log('2. Utilisez la carte test: 4242 4242 4242 4242');",
+                  "console.log('3. Date: 12/25');",
+                  "console.log('4. CVC: 123');",
+                  "console.log('5. Attendez confirmation paiement');",
+                  "console.log('6. Vérifiez webhook reçu (console PaymentService)');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://checkout.stripe.com"
+          }
+        },
+        {
+          "name": "📊 Vérifier Mon Abonnement",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_payment}}/api/subscriptions/me"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 4. COURIER - CRÉER AGENT",
+      "item": [
+        {
+          "name": "➕ Créer Agent (Après Paiement)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numero\": \"001\",\n  \"nom\": \"Ouedraogo\",\n  \"prenom\": \"Pierre\",\n  \"telephone\": \"+226 70 12 34 56\",\n  \"email\": \"{{agent_email}}\",\n  \"adresse\": \"Ouagadougou, Sector 15\"\n}"
+            },
+            "url": "{{base_url_courier}}/api/agents",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('agent_id', response.data.agentId || response.data._id);",
+                    "  console.log('✅ Agent créé - ID:', response.data.agentId || response.data._id);",
+                    "  console.log('📧 Email agent:', pm.collectionVariables.get('agent_email'));",
+                    "  console.log('🔑 Mot de passe envoyé par email');",
+                    "} else {",
+                    "  console.log('❌ Erreur:', response.message);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "📋 Lister Mes Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_courier}}/api/agents"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔑 5. AUTH - CONNEXION AGENT",
+      "item": [
+        {
+          "name": "⚠️ REMPLIR agent_password D'ABORD",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "console.log('⚠️ ÉTAPE MANUELLE:');",
+                  "console.log('1. Vérifiez l\\'email de l\\'agent:', pm.collectionVariables.get('agent_email'));",
+                  "console.log('2. Copiez le mot de passe reçu par email');",
+                  "console.log('3. Allez dans Postman → Onglet \"Variables\"');",
+                  "console.log('4. Remplissez \"agent_password\"');",
+                  "console.log('5. Relancez cette requête');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://example.com"
+          }
+        },
+        {
+          "name": "🔑 Connexion Agent (Mobile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{agent_email}}\",\n  \"password\": \"{{agent_password}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signin",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('agent_token', response.data.token);",
+                    "  console.log('✅ Agent connecté - Token reçu');",
+                    "  console.log('👤 Role:', response.data.role);",
+                    "} else {",
+                    "  console.log('❌ Erreur:', response.message);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 6. DECHARGE - CRÉER COLIS",
+      "item": [
+        {
+          "name": "➕ Créer Colis (User)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ordinateur Dell XPS\",\n  \"description\": \"Ordinateur portable neuf à livrer\",\n  \"referenceNumber\": \"COL-{{$timestamp}}\",\n  \"destination\": \"Ouagadougou, Gounghin\",\n  \"deliveryDate\": \"2025-11-05\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/colis",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('colis_id', response.data._id);",
+                    "  console.log('✅ Colis créé - ID:', response.data._id);",
+                    "} else {",
+                    "  console.log('❌ Erreur:', response.message);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "📋 Lister Mes Colis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/colis"
+          }
+        },
+        {
+          "name": "📌 Assigner Colis à Agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agentId\": \"{{agent_id}}\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/colis/{{colis_id}}/assign"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 7. DECHARGE - LIVRAISON (AGENT MOBILE)",
+      "item": [
+        {
+          "name": "📋 Lister Colis Assignés (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/colis"
+          }
+        },
+        {
+          "name": "✍️ Créer Décharge (Mobile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colisId\": \"{{colis_id}}\",\n  \"nomDestinataire\": \"Marie Kaboré\",\n  \"fonctionDestinataire\": \"Responsable courrier\",\n  \"telephoneDestinataire\": \"+226 75 11 22 33\",\n  \"adresseLivraison\": \"Ouagadougou, Gounghin\",\n  \"positionLivraison\": {\n    \"latitude\": 12.3714,\n    \"longitude\": -1.5197,\n    \"precision\": 10\n  },\n  \"signature\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\",\n  \"commentaireAgent\": \"Livré en main propre, client satisfait\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/decharges",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('decharge_id', response.data._id);",
+                    "  console.log('✅ Décharge créée - ID:', response.data._id);",
+                    "  console.log('📍 Position capturée: Lat', response.data.positionLivraison.latitude, 'Long', response.data.positionLivraison.longitude);",
+                    "} else {",
+                    "  console.log('❌ Erreur:', response.message);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "📋 Lister Mes Décharges (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/decharges"
+          }
+        }
+      ]
+    },
+    {
+      "name": "✅ 8. VÉRIFICATION FINALE (USER)",
+      "item": [
+        {
+          "name": "📊 Voir Mes Colis Livrés",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/colis"
+          }
+        },
+        {
+          "name": "📄 Voir Mes Décharges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/decharges"
+          }
+        }
+      ]
+    }
+  ]
+}

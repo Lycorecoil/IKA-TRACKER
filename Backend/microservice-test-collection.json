@@ -1,0 +1,706 @@
+{
+  "info": {
+    "name": "🚀 Microservices - Test Complet",
+    "description": "Collection de test complète pour tous les microservices - Workflow: User → Agent → Colis → Décharge → Paiement",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url_auth",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "base_url_courier",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "base_url_decharge",
+      "value": "http://localhost:8002",
+      "type": "string"
+    },
+    {
+      "key": "base_url_payment",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "user_email",
+      "value": "ilboudojeanbaptiste41@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "agent_email",
+      "value": "ilboudojeanbaptistepro@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "admin_email",
+      "value": "arleybobm559@gmail.com",
+      "type": "string"
+    },
+    {
+      "key": "user_password",
+      "value": "Password123",
+      "type": "string"
+    },
+    {
+      "key": "admin_password",
+      "value": "Password123",
+      "type": "string"
+    },
+    {
+      "key": "agent_password",
+      "value": "",
+      "type": "string",
+      "description": "À remplir MANUELLEMENT après création de l'agent (reçu par email)"
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agent_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agent_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "colis_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "decharge_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "verification_code",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "stripe_price_id",
+      "value": "prod_TJfHWwvCeGckSX",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔧 1. VÉRIFICATION SERVICES",
+      "item": [
+        {
+          "name": "Health Check Auth",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_auth}}/health"
+          }
+        },
+        {
+          "name": "Health Check Courier",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_courier}}/health"
+          }
+        },
+        {
+          "name": "Health Check Decharge",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_decharge}}/health"
+          }
+        },
+        {
+          "name": "Health Check Payment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url_payment}}/health"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 2. AUTH SERVICE - USER",
+      "item": [
+        {
+          "name": "Inscription User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\",\n  \"name\": \"Jean Baptiste Ilboudo\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signup",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success && response.data.debug_verification_code) {",
+                    "  pm.collectionVariables.set('verification_code', response.data.debug_verification_code);",
+                    "  console.log('✅ Code vérification sauvegardé:', response.data.debug_verification_code);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Vérification Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"providedCode\": \"{{verification_code}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/verify-verification-code"
+          }
+        },
+        {
+          "name": "Connexion User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{user_email}}\",\n  \"password\": \"{{user_password}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signin",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('user_token', response.data.token);",
+                    "  console.log('✅ User token sauvegardé');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_auth}}/api/auth/getme"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 3. AUTH SERVICE - ADMIN",
+      "item": [
+        {
+          "name": "Connexion Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signin",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('admin_token', response.data.token);",
+                    "  console.log('✅ Admin token sauvegardé');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lister Tous les Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_auth}}/api/admin/users"
+          }
+        },
+        {
+          "name": "Stats Système",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_auth}}/api/admin/stats"
+          }
+        }
+      ]
+    },
+    {
+      "name": "👥 4. COURRIER SERVICE - AGENTS",
+      "item": [
+        {
+          "name": "Créer Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroAgent\": 1001,\n  \"nom\": \"Martin\",\n  \"prenom\": \"Pierre\",\n  \"telephone\": \"0123456789\",\n  \"email\": \"{{agent_email}}\",\n  \"adresse\": \"123 Rue de Paris\"\n}"
+            },
+            "url": "{{base_url_courier}}/api/agents",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('agent_id', response.data._id);",
+                    "  console.log('✅ Agent ID sauvegardé:', response.data._id);",
+                    "  console.log('📧 IMPORTANT: Vérifiez l\\'email', pm.collectionVariables.get('agent_email'), 'pour le mot de passe agent');",
+                    "  console.log('🔑 Puis ajoutez le mot de passe dans la variable \"agent_password\"');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lister Mes Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_courier}}/api/agents"
+          }
+        },
+        {
+          "name": "Consulter Agent",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_courier}}/api/agents/{{agent_id}}"
+          }
+        },
+        {
+          "name": "Activer/Désactiver Agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_courier}}/api/agents/{{agent_id}}/toggle"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 5. COURRIER ADMIN",
+      "item": [
+        {
+          "name": "Dashboard Admin Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_courier}}/api/admin/dashboard"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 6. DECHARGE SERVICE - COLIS",
+      "item": [
+        {
+          "name": "Créer Colis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Colis Important\",\n  \"description\": \"Documents urgents à livrer\",\n  \"referenceNumber\": \"REF-001\",\n  \"destination\": \"15 Avenue des Champs, Paris\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/colis",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('colis_id', response.data._id);",
+                    "  console.log('✅ Colis ID sauvegardé:', response.data._id);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lister Mes Colis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/colis"
+          }
+        },
+        {
+          "name": "Assigner Colis à Agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"agentId\": \"{{agent_id}}\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/colis/{{colis_id}}/assign"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 7. DECHARGE SERVICE - AGENT (Mobile)",
+      "item": [
+        {
+          "name": "⚠️ ÉTAPE MANUELLE - Remplir agent_password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "console.log('⚠️ ÉTAPE MANUELLE REQUISE:');",
+                  "console.log('1. Vérifiez l\\'email de l\\'agent:', pm.collectionVariables.get('agent_email'));",
+                  "console.log('2. Copiez le mot de passe reçu par email');",
+                  "console.log('3. Allez dans Postman → Variables de la collection');",
+                  "console.log('4. Remplissez \"agent_password\" avec le mot de passe');",
+                  "console.log('5. Puis lancez la requête \"Connexion Agent\"');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "https://example.com"
+          }
+        },
+        {
+          "name": "Connexion Agent (Mobile)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{agent_email}}\",\n  \"password\": \"{{agent_password}}\"\n}"
+            },
+            "url": "{{base_url_auth}}/api/auth/signin",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('agent_token', response.data.token);",
+                    "  console.log('✅ Agent token sauvegardé');",
+                    "  console.log('✅ Role:', response.data.role);",
+                    "} else {",
+                    "  console.log('❌ Erreur connexion agent - Vérifiez le mot de passe');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lister Colis Assignés (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/colis"
+          }
+        },
+        {
+          "name": "Créer Décharge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colisId\": \"{{colis_id}}\",\n  \"nomDestinataire\": \"Marie Dupont\",\n  \"telephoneDestinataire\": \"0123456789\",\n  \"adresseLivraison\": \"15 Avenue des Champs, Paris\",\n  \"positionLivraison\": {\n    \"latitude\": 48.8566,\n    \"longitude\": 2.3522\n  },\n  \"signature\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\",\n  \"commentaireAgent\": \"Livraison effectuée avec succès\"\n}"
+            },
+            "url": "{{base_url_decharge}}/api/decharges",
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "const response = pm.response.json();",
+                    "if (response.success) {",
+                    "  pm.collectionVariables.set('decharge_id', response.data._id);",
+                    "  console.log('✅ Décharge ID sauvegardé:', response.data._id);",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "Lister Mes Décharges (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{agent_token}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/decharges"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 8. DECHARGE ADMIN",
+      "item": [
+        {
+          "name": "Dashboard Admin Colis",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/admin/dashboard"
+          }
+        },
+        {
+          "name": "Lister Tous les Colis (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/admin/colis"
+          }
+        },
+        {
+          "name": "Lister Toutes les Décharges (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": "{{base_url_decharge}}/api/admin/decharges"
+          }
+        }
+      ]
+    },
+    {
+      "name": "💳 9. PAYMENT SERVICE",
+      "item": [
+        {
+          "name": "Créer Session Paiement",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"priceId\": \"{{stripe_price_id}}\"\n}"
+            },
+            "url": "{{base_url_payment}}/api/subscriptions/checkout-session"
+          }
+        },
+        {
+          "name": "Vérifier Mon Abonnement",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_payment}}/api/subscriptions/me"
+          }
+        },
+        {
+          "name": "Lister Mes Paiements",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user_token}}"
+              }
+            ],
+            "url": "{{base_url_payment}}/api/payments"
+          }
+        }
+      ]
+    }
+  ]
+}

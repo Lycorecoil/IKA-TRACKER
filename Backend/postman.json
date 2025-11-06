@@ -1,0 +1,1032 @@
+{
+  "info": {
+    "name": "Gestion Courrier API - COMPLÈTE",
+    "description": "Collection complète avec toutes les routes AuthService et CoursierService",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrlAuth",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "baseUrlCourrier",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "token_user",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_agent",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_admin",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "agent_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "colis_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "decharge_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "verification_code_user",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 AUTH SERVICE - COMPTE UTILISATEUR",
+      "item": [
+        {
+          "name": "1. SIGNUP User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ilboudojeanbaptiste41@gmail.com\",\n  \"password\": \"Password123\",\n  \"name\": \"Jean Baptiste Ilboudo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/signup",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "signup"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "console.log('✅ COMPTE USER CRÉÉ');",
+                    "console.log('📧 Vérifiez la console AuthService pour le CODE DE VÉRIFICATION');",
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('user_id', jsonData.data.userId);",
+                    "  if (jsonData.data.debug_verification_code) {",
+                    "    pm.collectionVariables.set('verification_code_user', jsonData.data.debug_verification_code);",
+                    "    console.log('🔐 CODE DEBUG:', jsonData.data.debug_verification_code);",
+                    "  }",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "2. VERIFY User Email",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ilboudojeanbaptiste41@gmail.com\",\n  \"providedCode\": \"{{verification_code_user}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/verify-verification-code",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "verify-verification-code"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "if (pm.response.code === 200) {",
+                    "  console.log('✅ EMAIL USER VÉRIFIÉ!');",
+                    "  console.log('➡️ Passez à SIGNIN User');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "3. SIGNIN User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ilboudojeanbaptiste41@gmail.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/signin",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "signin"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('token_user', jsonData.data.token);",
+                    "  console.log('✅ TOKEN USER RÉCUPÉRÉ');",
+                    "  console.log('🎯 Vous pouvez maintenant créer des agents');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET Get Me (User)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/getme",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "getme"]
+            }
+          }
+        },
+        {
+          "name": "POST Renvoyer code vérification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ilboudojeanbaptiste41@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/send-verification-code",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "send-verification-code"]
+            }
+          }
+        },
+        {
+          "name": "POST Mot de passe oublié",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ilboudojeanbaptiste41@gmail.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/send-forgot-password-code",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "send-forgot-password-code"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Changer mot de passe",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Password123\",\n  \"newPassword\": \"NewPassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/change-password",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "change-password"]
+            }
+          }
+        },
+        {
+          "name": "POST Signout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/signout",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "signout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 AUTH SERVICE - CONNEXION AGENT",
+      "item": [
+        {
+          "name": "SIGNIN Agent (après création)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"bobcompteatoutfaire@gmail.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/signin",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "signin"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('token_agent', jsonData.data.token);",
+                    "  console.log('✅ TOKEN AGENT RÉCUPÉRÉ');",
+                    "  console.log('🎯 L\\'agent peut maintenant gérer les colis et décharges');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 AUTH SERVICE - CONNEXION ADMIN",
+      "item": [
+        {
+          "name": "SIGNIN Admin",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"arleybobm559@gmail.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/auth/signin",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "auth", "signin"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('token_admin', jsonData.data.token);",
+                    "  console.log('✅ TOKEN ADMIN RÉCUPÉRÉ');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "🔐 AUTH SERVICE - ADMIN ROUTES",
+      "item": [
+        {
+          "name": "GET All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/admin/users",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "admin", "users"]
+            }
+          }
+        },
+        {
+          "name": "GET User by ID (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/admin/users/{{user_id}}",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Update User Role (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/admin/users/{{user_id}}/role",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "role"]
+            }
+          }
+        },
+        {
+          "name": "DELETE User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/admin/users/{{user_id}}",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "GET System Stats (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlAuth}}/api/admin/stats",
+              "host": ["{{baseUrlAuth}}"],
+              "path": ["api", "admin", "stats"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 COURSIER SERVICE - GESTION AGENTS (USER)",
+      "item": [
+        {
+          "name": "POST Create Agent",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroAgent\": 1001,\n  \"nom\": \"Bob\",\n  \"prenom\": \"Agent\",\n  \"telephone\": \"+33123456789\",\n  \"email\": \"bobcompteatoutfaire@gmail.com\",\n  \"adresse\": \"123 Rue de Paris\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/agents",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "agents"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('agent_id', jsonData.data._id);",
+                    "  console.log('✅ AGENT CRÉÉ - ID:', pm.collectionVariables.get('agent_id'));",
+                    "  console.log('🔐 Compte Auth créé automatiquement');",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET List Agents",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/agents",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "agents"]
+            }
+          }
+        },
+        {
+          "name": "GET Agent by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/agents/{{agent_id}}",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "agents", "{{agent_id}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT Update Agent",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"telephone\": \"+33987654321\",\n  \"adresse\": \"456 Nouvelle Adresse, Paris\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/agents/{{agent_id}}",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "agents", "{{agent_id}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT Toggle Agent Status",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/agents/{{agent_id}}/toggle",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "agents", "{{agent_id}}", "toggle"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 COURSIER SERVICE - GESTION COLIS (USER)",
+      "item": [
+        {
+          "name": "POST Create Colis",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Colis Important\",\n  \"description\": \"Documents confidentiels à livrer\",\n  \"referenceNumber\": \"REF-001\",\n  \"destination\": \"Paris, France\",\n  \"deliveryDate\": \"2024-12-31\",\n  \"agentId\": \"{{agent_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('colis_id', jsonData.data._id);",
+                    "  console.log('✅ COLIS CRÉÉ - ID:', pm.collectionVariables.get('colis_id'));",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET List Colis (User)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis"]
+            }
+          }
+        },
+        {
+          "name": "GET Colis by ID (User)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis/{{colis_id}}",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis", "{{colis_id}}"]
+            }
+          }
+        },
+        {
+          "name": "PUT Assign Colis",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numeroAgent\": 1001\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis/{{colis_id}}/assign",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis", "{{colis_id}}", "assign"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Colis (User)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_user}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis/{{colis_id}}",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis", "{{colis_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 COURSIER SERVICE - GESTION COLIS (AGENT)",
+      "item": [
+        {
+          "name": "GET List Colis (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agent}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis"]
+            }
+          }
+        },
+        {
+          "name": "PATCH Update Status (Agent)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agent}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"en_cours\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/colis/{{colis_id}}/status",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "colis", "{{colis_id}}", "status"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "📄 COURSIER SERVICE - DÉCHARGES (AGENT)",
+      "item": [
+        {
+          "name": "POST Create Decharge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agent}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"colisId\": \"{{colis_id}}\",\n  \"nomDestinataire\": \"Pierre Martin\",\n  \"telephoneDestinataire\": \"+33123456789\",\n  \"positionLivraison\": [2.3522, 48.8566],\n  \"adresseLivraison\": \"10 Rue de la Paix, 75001 Paris\",\n  \"signature\": \"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==\",\n  \"photoLivraison\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwABmX/9k=\",\n  \"commentaireAgent\": \"Livraison effectuée avec succès\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/decharges",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "decharges"]
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "exec": [
+                    "var jsonData = pm.response.json();",
+                    "if (jsonData.success) {",
+                    "  pm.collectionVariables.set('decharge_id', jsonData.data.decharge._id);",
+                    "  console.log('✅ DÉCHARGE CRÉÉE - ID:', pm.collectionVariables.get('decharge_id'));",
+                    "}"
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "name": "GET List Decharges (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agent}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/decharges",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "decharges"]
+            }
+          }
+        },
+        {
+          "name": "GET Decharge by ID (Agent)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_agent}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/decharges/{{decharge_id}}",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "decharges", "{{decharge_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚙️ COURSIER SERVICE - ADMIN DASHBOARD",
+      "item": [
+        {
+          "name": "GET Dashboard Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/admin/dashboard",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "admin", "dashboard"]
+            }
+          }
+        },
+        {
+          "name": "GET All Colis (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/admin/colis",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "admin", "colis"]
+            }
+          }
+        },
+        {
+          "name": "GET All Agents (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/admin/agents",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "admin", "agents"]
+            }
+          }
+        },
+        {
+          "name": "GET All Decharges (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/admin/decharges",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "admin", "decharges"]
+            }
+          }
+        },
+        {
+          "name": "PUT Toggle User Agents (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token_admin}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "client",
+                "value": "not-browser"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actif\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrlCourrier}}/api/admin/users/{{user_id}}/toggle",
+              "host": ["{{baseUrlCourrier}}"],
+              "path": ["api", "admin", "users", "{{user_id}}", "toggle"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

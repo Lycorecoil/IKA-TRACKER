@@ -1,0 +1,30 @@
+@'
+image: node:20
+
+stages:
+  - install
+  - test
+
+install_auth:
+  stage: install
+  script:
+    - echo "Installation des dépendances AuthService..."
+    - cd Backend/AuthService
+    - npm install
+  artifacts:
+    paths:
+      - Backend/AuthService/node_modules
+  only:
+    - main
+    - master
+
+test_auth:
+  stage: test
+  script:
+    - echo "Tests AuthService..."
+    - cd Backend/AuthService
+    - npm test
+  only:
+    - main
+    - master
+'@ | Out-File -FilePath ".gitlab-ci.yml" -Encoding UTF8

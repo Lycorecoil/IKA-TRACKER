@@ -1,0 +1,264 @@
+# version: "3.8"
+# services:
+#   authservice:
+#     build:
+#       context: ./backend
+#       dockerfile: AuthService/Dockerfile
+#     ports:
+#       - "8000:8000"
+#     environment:
+#       - NODE_ENV=production
+#       - COURIER_SERVICE_URL=http://courierservice:8001
+#       - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+#       - PAYEMENT_SERVICE_URL=http://payementservice:8003
+#       - MONGODB_URI=mongodb://your-mongodb-uri
+#       - JWT_SECRET=your-jwt-secret
+#       - REDIS_URL=redis://your-redis-url
+#     networks:
+#       - app-network
+
+#   courierservice:
+#     build:
+#       context: ./backend
+#       dockerfile: CourierService/Dockerfile
+#     ports:
+#       - "8001:8001"
+#     environment:
+#       - NODE_ENV=production
+#       - AUTH_SERVICE_URL=http://authservice:8000
+#       - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+#       - PAYEMENT_SERVICE_URL=http://payementservice:8003
+#       - MONGODB_URI=mongodb://your-mongodb-uri
+#       - JWT_SECRET=your-jwt-secret
+#       - REDIS_URL=redis://your-redis-url
+#     networks:
+#       - app-network
+
+#   dechargeservice:
+#     build:
+#       context: ./backend
+#       dockerfile: DechargeService/Dockerfile
+#     ports:
+#       - "8002:8002"
+#     environment:
+#       - NODE_ENV=production
+#       - AUTH_SERVICE_URL=http://authservice:8000
+#       - COURIER_SERVICE_URL=http://courierservice:8001
+#       - PAYEMENT_SERVICE_URL=http://payementservice:8003
+#       - MONGODB_URI=mongodb://your-mongodb-uri
+#       - JWT_SECRET=your-jwt-secret
+#       - REDIS_URL=redis://your-redis-url
+#     networks:
+#       - app-network
+
+#   payementservice:
+#     build:
+#       context: ./backend
+#       dockerfile: PayementService/Dockerfile
+#     ports:
+#       - "8003:8003"
+#     environment:
+#       - NODE_ENV=production
+#       - AUTH_SERVICE_URL=http://authservice:8000
+#       - COURIER_SERVICE_URL=http://courierservice:8001
+#       - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+#       - MONGODB_URI=mongodb://your-mongodb-uri
+#       - JWT_SECRET=your-jwt-secret
+#       - REDIS_URL=redis://your-redis-url
+#       - STRIPE_SECRET_KEY=your-stripe-key
+#     networks:
+#       - app-network
+
+#   nginx:
+#     build: ./nginx
+#     ports:
+#       - "8080:80"
+#     depends_on:
+#       - authservice
+#       - courierservice
+#       - dechargeservice
+#       - payementservice
+#     networks:
+#       - app-network
+#     restart: always
+
+# networks:
+#   app-network:
+#     driver: bridge
+version: "3.8"
+services:
+  authservice:
+    build:
+      context: ./backend
+      dockerfile: AuthService/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=production
+      - COURIER_SERVICE_URL=http://courierservice:8001
+      - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+      - PAYEMENT_SERVICE_URL=http://payementservice:8003
+      - MONGODB_URI=mongodb://authdb:27017/authdb
+      - JWT_SECRET=your-jwt-secret
+      - REDIS_URL=redis://authredis:6379
+    depends_on:
+      - authdb
+      - authredis
+    networks:
+      - app-network
+
+  authdb:
+    image: mongo:latest
+    container_name: authdb
+    ports:
+      - "27017:27017"
+    volumes:
+      - authdb-data:/data/db
+    networks:
+      - app-network
+
+  authredis:
+    image: redis:alpine
+    container_name: authredis
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+
+  courierservice:
+    build:
+      context: ./backend
+      dockerfile: CourierService/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://authservice:8000
+      - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+      - PAYEMENT_SERVICE_URL=http://payementservice:8003
+      - MONGODB_URI=mongodb://courierdb:27017/courierdb
+      - JWT_SECRET=your-jwt-secret
+      - REDIS_URL=redis://courierredis:6379
+    depends_on:
+      - courierdb
+      - courierredis
+    networks:
+      - app-network
+
+  courierdb:
+    image: mongo:latest
+    container_name: courierdb
+    ports:
+      - "27018:27017"
+    volumes:
+      - courierdb-data:/data/db
+    networks:
+      - app-network
+
+  courierredis:
+    image: redis:alpine
+    container_name: courierredis
+    ports:
+      - "6381:6379"
+    networks:
+      - app-network
+
+  dechargeservice:
+    build:
+      context: ./backend
+      dockerfile: DechargeService/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://authservice:8000
+      - COURIER_SERVICE_URL=http://courierservice:8001
+      - PAYEMENT_SERVICE_URL=http://payementservice:8003
+      - MONGODB_URI=mongodb://dechargedb:27017/dechargedb
+      - JWT_SECRET=your-jwt-secret
+      - REDIS_URL=redis://dechargeredis:6379
+    depends_on:
+      - dechargedb
+      - dechargeredis
+    networks:
+      - app-network
+
+  dechargedb:
+    image: mongo:latest
+    container_name: dechargedb
+    ports:
+      - "27019:27017"
+    volumes:
+      - dechargedb-data:/data/db
+    networks:
+      - app-network
+
+  dechargeredis:
+    image: redis:alpine
+    container_name: dechargeredis
+    ports:
+      - "6382:6379"
+    networks:
+      - app-network
+
+  payementservice:
+    build:
+      context: ./backend
+      dockerfile: PayementService/Dockerfile
+    ports:
+      - "8003:8003"
+    environment:
+      - NODE_ENV=production
+      - AUTH_SERVICE_URL=http://authservice:8000
+      - COURIER_SERVICE_URL=http://courierservice:8001
+      - DECHARGE_SERVICE_URL=http://dechargeservice:8002
+      - MONGODB_URI=mongodb://payementdb:27017/payementdb
+      - JWT_SECRET=your-jwt-secret
+      - REDIS_URL=redis://payementredis:6379
+      - STRIPE_SECRET_KEY=your-stripe-key
+    depends_on:
+      - payementdb
+      - payementredis
+    networks:
+      - app-network
+
+  payementdb:
+    image: mongo:latest
+    container_name: payementdb
+    ports:
+      - "27020:27017"
+    volumes:
+      - payementdb-data:/data/db
+    networks:
+      - app-network
+
+  payementredis:
+    image: redis:alpine
+    container_name: payementredis
+    ports:
+      - "6383:6379"
+    networks:
+      - app-network
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - authservice
+      - courierservice
+      - dechargeservice
+      - payementservice
+    networks:
+      - app-network
+    restart: always
+
+volumes:
+  authdb-data:
+  courierdb-data:
+  dechargedb-data:
+  payementdb-data:
+
+networks:
+  app-network:
+    driver: bridge

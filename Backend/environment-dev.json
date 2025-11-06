@@ -1,0 +1,123 @@
+{
+  "id": "dev-environment-001",
+  "name": "🛠️ Development",
+  "values": [
+    {
+      "key": "base_url_auth",
+      "value": "http://localhost:8000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "base_url_courier",
+      "value": "http://localhost:8001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "base_url_decharge",
+      "value": "http://localhost:8002",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "base_url_payment",
+      "value": "http://localhost:8003",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_email",
+      "value": "ilboudojeanbaptiste41@gmail.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "agent_email",
+      "value": "bobcompteatoutfaire@gmail.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_email",
+      "value": "ilboudojeanbaptistepro@gmail.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_password",
+      "value": "Password123!",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "agent_password",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin_password",
+      "value": "AdminPass123!",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "stripe_price_id",
+      "value": "price_1SN1wgRv7fgRikcb1hMwmMcQ",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "agent_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "agent_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "colis_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "decharge_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "verification_code",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment",
+  "_postman_exported_at": "2025-11-04T14:15:00.000Z",
+  "_postman_exported_using": "Postman/10.0.0"
+}

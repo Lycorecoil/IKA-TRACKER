@@ -1,0 +1,29 @@
+{
+  "name": "shared-middlewares",
+  "version": "1.0.0",
+  "description": "Middlewares partagés pour l'authentification et les autorisations",
+  "keywords": [
+    "middleware",
+    "auth",
+    "express"
+  ],
+  "license": "ISC",
+  "author": "JB",
+  "type": "commonjs",
+  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  },
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^2.7.0",
+    "nodemailer": "^7.0.10"
+  },
+  "peerDependencies": {
+    "express": "^4.0.0"
+  }
+}
