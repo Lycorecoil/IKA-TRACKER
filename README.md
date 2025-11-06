@@ -1,6 +1,6 @@
 # IKA Tracker
 
-Système de gestion de transport et logistique utilisant une architecture microservices.
+Système de gestions des decharges couriers
 
 ## 🚀 Démarrage rapide
 
@@ -13,7 +13,7 @@ Système de gestion de transport et logistique utilisant une architecture micros
 ### Installation locale
 
 \`\`\`bash
-git clone https://github.com/ton-username/ika-tracker.git
+git clone https://github.com/Lycorecoil/ika-tracker.git
 cd ika-tracker
 docker-compose up --build
 \`\`\`
