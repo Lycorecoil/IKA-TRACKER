@@ -12,9 +12,9 @@ docker-compose up --build
 
 ## Branches
 
-- `develop` : Frontend-agnostic (backend)
-- `develop-web` : Frontend React
-- `develop-mobile` : Frontend React Native
+- `develop-back` : Frontend-agnostic (backend)
+- `develop-web` : Frontend web
+- `develop-mobile` : Frontend Flutter
 
 ## Workflow
 
