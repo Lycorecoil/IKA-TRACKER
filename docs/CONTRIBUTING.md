@@ -5,7 +5,7 @@ Merci de contribuer ! Voici les étapes :
 ## Setup
 
 \`\`\`bash
-git clone https://github.com/ton-username/ika-tracker.git
+git clone https://github.com/Lycorecoil/ika-tracker.git
 cd ika-tracker
 docker-compose up --build
 \`\`\`
